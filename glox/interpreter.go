@@ -17,7 +17,6 @@ type interpreter struct {
 	lol string
 }
 
-// VisitVarDecl implements StmtVisitor.
 func (i *interpreter) VisitVarDecl(expr VarDecl) (any, error) {
 	panic("unimplemented")
 }
