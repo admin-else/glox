@@ -1,18 +1,20 @@
 package glox
 
 //go:generate go run ../generateast/generateast.go
-type Expr interface {
-	Accept(visitor ExprVisitor) (any, error)
-}
 {{range .}}
+type {{.AstType}} interface {
+	Accept(visitor {{.AstType}}Visitor) (any, error)
+} {{$AstType := .AstType}}
+{{range .Nodes}}
 type {{.Name}} struct { {{range .Args}}
 	{{.Name}} {{.Type}}{{end}}
 }
 
-func (e {{.Name}}) Accept(visitor ExprVisitor) (any, error) {
+func (e {{.Name}}) Accept(visitor {{$AstType}}Visitor) (any, error) {
 	return visitor.Visit{{.Name}}(e)
 }
 {{end}}
-type ExprVisitor interface { {{range .}}
+type {{.AstType}}Visitor interface { {{range .Nodes}}
 	Visit{{.Name}}(expr {{.Name}}) (any, error){{end}}
 }
+{{end}}

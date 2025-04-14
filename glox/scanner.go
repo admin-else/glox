@@ -68,10 +68,10 @@ var keywords = map[string]TokenType{
 }
 
 type Token struct {
-	TokenType TokenType
-	Lexme     string
-	Literal   any
-	Line      int
+	Type    TokenType
+	Lexme   string
+	Literal any
+	Line    int
 }
 
 type scanner struct {
@@ -213,7 +213,7 @@ func (s *scanner) scan() error {
 }
 
 func (s *scanner) addToken(tokenType TokenType, literal any) {
-	s.tokens = append(s.tokens, Token{TokenType: tokenType, Literal: literal, Line: s.line, Lexme: s.code[s.start:s.pos]})
+	s.tokens = append(s.tokens, Token{Type: tokenType, Literal: literal, Line: s.line, Lexme: s.code[s.start:s.pos]})
 }
 
 func (s *scanner) advance() byte {

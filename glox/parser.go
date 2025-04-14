@@ -10,9 +10,33 @@ type parser struct {
 	errors []error
 }
 
-func Parse(tokens []Token) (Expr, []error) {
+func Parse(tokens []Token) ([]Stmt, []error) {
 	p := parser{tokens: tokens, pos: 0}
-	return p.expression(), p.errors
+	stmts := []Stmt{}
+	for !p.isAtEnd() {
+		stmts = append(stmts, p.statement())
+	}
+	return stmts, p.errors
+}
+
+func (p *parser) statement() Stmt {
+	if p.match(PRINT) {
+		return p.printStmt()
+	}
+
+	return p.exprStmt()
+}
+
+func (p *parser) exprStmt() ExprStmt {
+	expr := p.expression()
+	p.consume(SEMICOLON, "Expected semicolon")
+	return ExprStmt{Expr: expr}
+}
+
+func (p *parser) printStmt() PrintStmt {
+	expr := p.expression()
+	p.consume(SEMICOLON, "Expect ';' after value.")
+	return PrintStmt{Expr: expr}
 }
 
 func (p *parser) expression() Expr {
@@ -22,7 +46,7 @@ func (p *parser) expression() Expr {
 func (p *parser) equality() Expr {
 	expr := p.comparison()
 	for p.match(BANG_EQUAL, EQUAL_EQUAL) {
-		operator := p.peek(-1).TokenType
+		operator := p.peek(-1)
 		right := p.comparison()
 		expr = BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
@@ -32,7 +56,7 @@ func (p *parser) equality() Expr {
 func (p *parser) comparison() Expr {
 	expr := p.term()
 	for p.match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL) {
-		operator := p.peek(-1).TokenType
+		operator := p.peek(-1)
 		right := p.term()
 		expr = BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
@@ -43,7 +67,7 @@ func (p *parser) term() Expr {
 	expr := p.factor()
 
 	for p.match(MINUS, PLUS) {
-		operator := p.peek(-1).TokenType
+		operator := p.peek(-1)
 		right := p.factor()
 		expr = BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
@@ -55,7 +79,7 @@ func (p *parser) factor() Expr {
 	expr := p.unary()
 
 	for p.match(SLASH, STAR) {
-		operator := p.peek(-1).TokenType
+		operator := p.peek(-1)
 		right := p.unary()
 		expr = BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
@@ -65,7 +89,7 @@ func (p *parser) factor() Expr {
 
 func (p *parser) unary() Expr {
 	if p.match(BANG, MINUS) {
-		operator := p.peek(-1).TokenType
+		operator := p.peek(-1)
 		right := p.unary()
 		return UnaryExpr{Operator: operator, Expr: right}
 	}
@@ -115,11 +139,11 @@ func (p *parser) error(t Token, message string) {
 func (p *parser) syncronize() {
 	p.advance()
 	for !p.isAtEnd() {
-		if p.peek(-1).TokenType == SEMICOLON {
+		if p.peek(-1).Type == SEMICOLON {
 			return
 		}
 
-		t := p.peek(0).TokenType
+		t := p.peek(0).Type
 		if t == CLASS || t == FOR || t == FUN || t == IF || t == PRINT || t == RETURN || t == VAR || t == WHILE {
 			return
 		}
@@ -150,7 +174,7 @@ func (p *parser) check(t TokenType) bool {
 	if p.isAtEnd() {
 		return false
 	}
-	return p.peek(0).TokenType == t
+	return p.peek(0).Type == t
 }
 
 func (p *parser) peek(offset int) Token {
@@ -158,5 +182,5 @@ func (p *parser) peek(offset int) Token {
 }
 
 func (p *parser) isAtEnd() bool {
-	return p.peek(0).TokenType == EOF
+	return p.peek(0).Type == EOF
 }

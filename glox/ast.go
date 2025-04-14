@@ -1,13 +1,14 @@
 package glox
 
 //go:generate go run ../generateast/generateast.go
+
 type Expr interface {
 	Accept(visitor ExprVisitor) (any, error)
-}
+} 
 
 type BinaryExpr struct { 
 	Left Expr
-	Operator TokenType
+	Operator Token
 	Right Expr
 }
 
@@ -32,7 +33,7 @@ func (e LiteralExpr) Accept(visitor ExprVisitor) (any, error) {
 }
 
 type UnaryExpr struct { 
-	Operator TokenType
+	Operator Token
 	Expr Expr
 }
 
@@ -46,3 +47,39 @@ type ExprVisitor interface {
 	VisitLiteralExpr(expr LiteralExpr) (any, error)
 	VisitUnaryExpr(expr UnaryExpr) (any, error)
 }
+
+type Stmt interface {
+	Accept(visitor StmtVisitor) (any, error)
+} 
+
+type ExprStmt struct { 
+	Expr Expr
+}
+
+func (e ExprStmt) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitExprStmt(e)
+}
+
+type PrintStmt struct { 
+	Expr Expr
+}
+
+func (e PrintStmt) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitPrintStmt(e)
+}
+
+type VarDecl struct { 
+	Name Token
+	Initializer Expr
+}
+
+func (e VarDecl) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitVarDecl(e)
+}
+
+type StmtVisitor interface { 
+	VisitExprStmt(expr ExprStmt) (any, error)
+	VisitPrintStmt(expr PrintStmt) (any, error)
+	VisitVarDecl(expr VarDecl) (any, error)
+}
+

@@ -15,19 +15,36 @@ type Node struct {
 	Args []Arg
 }
 
+type Ast struct {
+	AstType string
+	Nodes   []Node
+}
+
 func main() {
-	nodes := []Node{
-		{"BinaryExpr", []Arg{
-			{"Left", "Expr"},
-			{"Operator", "TokenType"},
-			{"Right", "Expr"},
-		}}, {"GroupingExpr", []Arg{
-			{"Expr", "Expr"},
-		}}, {"LiteralExpr", []Arg{
-			{"Value", "any"},
-		}}, {"UnaryExpr", []Arg{
-			{"Operator", "TokenType"},
-			{"Expr", "Expr"},
+	exprs := []Ast{
+		{"Expr", []Node{
+			{"BinaryExpr", []Arg{
+				{"Left", "Expr"},
+				{"Operator", "Token"},
+				{"Right", "Expr"},
+			}}, {"GroupingExpr", []Arg{
+				{"Expr", "Expr"},
+			}}, {"LiteralExpr", []Arg{
+				{"Value", "any"},
+			}}, {"UnaryExpr", []Arg{
+				{"Operator", "Token"},
+				{"Expr", "Expr"},
+			}},
+		}},
+		{"Stmt", []Node{
+			{"ExprStmt", []Arg{
+				{"Expr", "Expr"},
+			}}, {"PrintStmt", []Arg{
+				{"Expr", "Expr"},
+			}}, {"VarDecl", []Arg{
+				{"Name", "Token"},
+				{"Initializer", "Expr"},
+			}},
 		}}}
 	tmplSrc, err := os.ReadFile("../generateast/ast.go.tmpl")
 	if err != nil {
@@ -41,7 +58,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(f, nodes)
+	err = tmpl.Execute(f, exprs)
 	if err != nil {
 		panic(err)
 	}

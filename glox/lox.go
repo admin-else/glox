@@ -1,7 +1,6 @@
 package glox
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -12,8 +11,13 @@ func Run(code string) {
 	}
 	expr, errors := Parse(tokens)
 	if len(errors) != 0 {
-		panic(errors)
+		for _, e := range errors {
+			fmt.Println(e)
+		}
+		return
 	}
-	expr_json, _ := json.Marshal(expr)
-	fmt.Printf("%v", string(expr_json))
+	err = Interpret(expr)
+	if err != nil {
+		panic(err)
+	}
 }
