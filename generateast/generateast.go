@@ -59,6 +59,9 @@ func main() {
 				{"Condition", "Expr"},
 				{"ThenBranch", "Stmt"},
 				{"ElseBranch", "Stmt"},
+			}}, {"WhileStmt", []Arg{
+				{"Condition", "Expr"},
+				{"Body", "Stmt"},
 			}},
 		}}}
 	tmplSrc, err := os.ReadFile("../generateast/ast.go.tmpl")

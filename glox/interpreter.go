@@ -17,6 +17,25 @@ type Interpreter struct {
 	*Enviorment
 }
 
+// VisitWhileStmt implements StmtVisitor.
+func (i *Interpreter) VisitWhileStmt(expr WhileStmt) (_ any, err error) {
+	var res any
+	for {
+		res, err = i.evaluate(expr.Condition)
+		if err != nil {
+			return
+		}
+		if !i.isTruthy(res) {
+			break
+		}
+		_, err = i.execute(expr.Body)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
 func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (any, error) {
 	left, err := i.evaluate(expr.Left)
 	if err != nil {

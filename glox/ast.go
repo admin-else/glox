@@ -125,11 +125,21 @@ func (e IfStmt) Accept(visitor StmtVisitor) (any, error) {
 	return visitor.VisitIfStmt(e)
 }
 
+type WhileStmt struct { 
+	Condition Expr
+	Body Stmt
+}
+
+func (e WhileStmt) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitWhileStmt(e)
+}
+
 type StmtVisitor interface { 
 	VisitExprStmt(expr ExprStmt) (any, error)
 	VisitPrintStmt(expr PrintStmt) (any, error)
 	VisitVarDecl(expr VarDecl) (any, error)
 	VisitBlock(expr Block) (any, error)
 	VisitIfStmt(expr IfStmt) (any, error)
+	VisitWhileStmt(expr WhileStmt) (any, error)
 }
 
