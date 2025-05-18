@@ -1,3 +1,3 @@
-print "one";
-print true;
-print 2 + 1;
+var lol = 894;
+var lol2 = 1;
+print lol + lol2;

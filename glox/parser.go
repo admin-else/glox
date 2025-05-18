@@ -5,18 +5,48 @@ import (
 )
 
 type parser struct {
-	tokens []Token
-	pos    int
-	errors []error
+	tokens      []Token
+	pos         int
+	errors      []error
+	syncronized bool
 }
 
 func Parse(tokens []Token) ([]Stmt, []error) {
-	p := parser{tokens: tokens, pos: 0}
+	p := parser{tokens: tokens, pos: 0, syncronized: true}
 	stmts := []Stmt{}
 	for !p.isAtEnd() {
-		stmts = append(stmts, p.statement())
+		stmt := p.decleration()
+		if stmt != nil {
+			stmts = append(stmts, stmt)
+		}
 	}
 	return stmts, p.errors
+}
+
+func (p *parser) decleration() Stmt {
+	var ret Stmt
+	if p.match(VAR) {
+		ret = p.varDecl()
+	} else {
+		ret = p.statement()
+	}
+	if !p.syncronized {
+		p.syncronize()
+		return nil
+	}
+	return ret
+}
+
+func (p *parser) varDecl() Stmt {
+	name := p.consume(IDENTIFIER, "Expected variable name")
+
+	var init Expr
+	if p.match(EQUAL) {
+		init = p.expression()
+	}
+
+	p.consume(SEMICOLON, "Expected ';' after variable expr")
+	return VarDecl{Name: name, Initializer: init}
 }
 
 func (p *parser) statement() Stmt {
@@ -112,6 +142,10 @@ func (p *parser) primary() Expr {
 		return LiteralExpr{p.peek(-1).Literal}
 	}
 
+	if p.match(IDENTIFIER) {
+		return VariableExpr{p.peek(-1)}
+	}
+
 	if p.match(LEFT_PAREN) {
 		expr := p.expression()
 		p.consume(RIGHT_PAREN, "Expected ')' after expression.")
@@ -132,8 +166,8 @@ func (p *parser) consume(t TokenType, message string) Token {
 }
 
 func (p *parser) error(t Token, message string) {
-	p.errors = append(p.errors, fmt.Errorf("Error at line %v around %v: %s\n", t.Line, t.Lexme, message))
-	p.syncronize()
+	p.errors = append(p.errors, fmt.Errorf("Error at line %v around %v: %s", t.Line, t.Lexme, message))
+	p.syncronized = false
 }
 
 func (p *parser) syncronize() {
@@ -150,6 +184,7 @@ func (p *parser) syncronize() {
 
 		p.advance()
 	}
+	p.syncronized = true
 }
 
 // Utils

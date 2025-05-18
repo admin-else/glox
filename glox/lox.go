@@ -9,14 +9,14 @@ func Run(code string) {
 	if err != nil {
 		panic(err)
 	}
-	expr, errors := Parse(tokens)
+	stmts, errors := Parse(tokens)
 	if len(errors) != 0 {
 		for _, e := range errors {
 			fmt.Println(e)
 		}
 		return
 	}
-	err = Interpret(expr)
+	err = Interpret(stmts)
 	if err != nil {
 		panic(err)
 	}

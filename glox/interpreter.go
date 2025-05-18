@@ -14,11 +14,23 @@ func (e RunTimeError) Error() string {
 }
 
 type interpreter struct {
-	lol string
+	Enviorment
 }
 
-func (i *interpreter) VisitVarDecl(expr VarDecl) (any, error) {
-	panic("unimplemented")
+func (i *interpreter) VisitVariableExpr(expr VariableExpr) (any, error) {
+	return i.Get(expr.Name)
+}
+
+func (i *interpreter) VisitVarDecl(expr VarDecl) (_ any, err error) {
+	var value any
+	if expr.Initializer != nil {
+		value, err = i.evaluate(expr.Initializer)
+		if err != nil {
+			return
+		}
+	}
+	i.Enviorment.Put(expr.Name.Lexme, value)
+	return
 }
 
 func (i *interpreter) VisitExprStmt(expr ExprStmt) (any, error) {
@@ -49,9 +61,9 @@ func (i *interpreter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
 	}
 	switch left.(type) {
 	case float64:
-		left, _ := left.(float64)
+		left := left.(float64)
 		right_num, ok := right.(float64)
-		if ok == false {
+		if !ok {
 			return nil, RunTimeError{m: "binary expr with a left num must have a right num", t: expr.Operator}
 		}
 		switch expr.Operator.Type {
@@ -121,11 +133,11 @@ func (i *interpreter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
 }
 
 func (i *interpreter) isTruthy(value any) bool {
-	switch value.(type) {
+	switch value := value.(type) {
 	case nil:
 		return false
 	case bool:
-		return value.(bool)
+		return value
 	default:
 		return true
 	}
@@ -140,7 +152,11 @@ func (i *interpreter) execute(stmt Stmt) (any, error) {
 }
 
 func Interpret(e []Stmt) error {
-	i := &interpreter{}
+	i := &interpreter{
+		Enviorment{
+			map[string]any{},
+		},
+	}
 	for _, v := range e {
 		_, err := i.execute(v)
 		if err != nil {

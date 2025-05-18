@@ -41,11 +41,20 @@ func (e UnaryExpr) Accept(visitor ExprVisitor) (any, error) {
 	return visitor.VisitUnaryExpr(e)
 }
 
+type VariableExpr struct { 
+	Name Token
+}
+
+func (e VariableExpr) Accept(visitor ExprVisitor) (any, error) {
+	return visitor.VisitVariableExpr(e)
+}
+
 type ExprVisitor interface { 
 	VisitBinaryExpr(expr BinaryExpr) (any, error)
 	VisitGroupingExpr(expr GroupingExpr) (any, error)
 	VisitLiteralExpr(expr LiteralExpr) (any, error)
 	VisitUnaryExpr(expr UnaryExpr) (any, error)
+	VisitVariableExpr(expr VariableExpr) (any, error)
 }
 
 type Stmt interface {

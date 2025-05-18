@@ -34,6 +34,8 @@ func main() {
 			}}, {"UnaryExpr", []Arg{
 				{"Operator", "Token"},
 				{"Expr", "Expr"},
+			}}, {"VariableExpr", []Arg{
+				{"Name", "Token"},
 			}},
 		}},
 		{"Stmt", []Node{
