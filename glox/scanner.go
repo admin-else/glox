@@ -58,6 +58,7 @@ var keywords = map[string]TokenType{
 	"fun":    FUN,
 	"if":     IF,
 	"nil":    NIL,
+	"or":     OR,
 	"print":  PRINT,
 	"return": RETURN,
 	"super":  SUPER,

@@ -114,7 +114,7 @@ func (p *parser) expression() Expr {
 }
 
 func (p *parser) assignment() Expr {
-	expr := p.equality()
+	expr := p.or()
 
 	if p.match(EQUAL) {
 		equals := p.peek(-1)
@@ -126,6 +126,28 @@ func (p *parser) assignment() Expr {
 			return nil
 		}
 		return AssignExpr{varr.Name, value}
+	}
+
+	return expr
+}
+
+func (p *parser) or() Expr {
+	expr := p.and()
+	for p.match(OR) {
+		op := p.peek(-1)
+		right := p.and()
+		expr = LogicalExpr{expr, op, right}
+	}
+
+	return expr
+}
+
+func (p *parser) and() Expr {
+	expr := p.equality()
+	for p.match(AND) {
+		op := p.peek(-1)
+		right := p.equality()
+		expr = LogicalExpr{expr, op, right}
 	}
 
 	return expr

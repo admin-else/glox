@@ -58,6 +58,16 @@ func (e AssignExpr) Accept(visitor ExprVisitor) (any, error) {
 	return visitor.VisitAssignExpr(e)
 }
 
+type LogicalExpr struct { 
+	Left Expr
+	Operator Token
+	Right Expr
+}
+
+func (e LogicalExpr) Accept(visitor ExprVisitor) (any, error) {
+	return visitor.VisitLogicalExpr(e)
+}
+
 type ExprVisitor interface { 
 	VisitBinaryExpr(expr BinaryExpr) (any, error)
 	VisitGroupingExpr(expr GroupingExpr) (any, error)
@@ -65,6 +75,7 @@ type ExprVisitor interface {
 	VisitUnaryExpr(expr UnaryExpr) (any, error)
 	VisitVariableExpr(expr VariableExpr) (any, error)
 	VisitAssignExpr(expr AssignExpr) (any, error)
+	VisitLogicalExpr(expr LogicalExpr) (any, error)
 }
 
 type Stmt interface {

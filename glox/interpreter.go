@@ -17,6 +17,37 @@ type Interpreter struct {
 	*Enviorment
 }
 
+func (i *Interpreter) VisitLogicalExpr(expr LogicalExpr) (any, error) {
+	left, err := i.evaluate(expr.Left)
+	if err != nil {
+		return nil, err
+	}
+
+	if expr.Operator.Type == OR {
+		if i.isTruthy(left) {
+			return left, nil
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left, nil
+		}
+	}
+	return i.evaluate(expr.Right)
+}
+
+func (i *Interpreter) VisitIfStmt(expr IfStmt) (_ any, err error) {
+	ret, err := i.evaluate(expr.Condition)
+	if err != nil {
+		return
+	}
+	if i.isTruthy(ret) {
+		_, err = i.execute(expr.ThenBranch)
+	} else {
+		_, err = i.execute(expr.ElseBranch)
+	}
+	return
+}
+
 func (i *Interpreter) VisitBlock(expr Block) (_ any, err error) {
 	err = i.executeBlock(expr.Stmts, &Enviorment{i.Enviorment, map[string]any{}})
 	return
