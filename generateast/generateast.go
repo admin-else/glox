@@ -43,6 +43,10 @@ func main() {
 				{"Left", "Expr"},
 				{"Operator", "Token"},
 				{"Right", "Expr"},
+			}}, {"CallExpr", []Arg{
+				{"Callee", "Expr"},
+				{"Paren", "Token"},
+				{"Arguments", "[]Expr"},
 			}},
 		}},
 		{"Stmt", []Node{
@@ -62,7 +66,12 @@ func main() {
 			}}, {"WhileStmt", []Arg{
 				{"Condition", "Expr"},
 				{"Body", "Stmt"},
-			}},
+			}}, {"Function", []Arg{
+				{"Name", "Token"},
+				{"Params", "[]Token"},
+				{"Body", "[]Stmt"},
+			},
+			},
 		}}}
 	tmplSrc, err := os.ReadFile("../generateast/ast.go.tmpl")
 	if err != nil {

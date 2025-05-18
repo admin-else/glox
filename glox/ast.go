@@ -68,6 +68,16 @@ func (e LogicalExpr) Accept(visitor ExprVisitor) (any, error) {
 	return visitor.VisitLogicalExpr(e)
 }
 
+type CallExpr struct { 
+	Callee Expr
+	Paren Token
+	Arguments []Expr
+}
+
+func (e CallExpr) Accept(visitor ExprVisitor) (any, error) {
+	return visitor.VisitCallExpr(e)
+}
+
 type ExprVisitor interface { 
 	VisitBinaryExpr(expr BinaryExpr) (any, error)
 	VisitGroupingExpr(expr GroupingExpr) (any, error)
@@ -76,6 +86,7 @@ type ExprVisitor interface {
 	VisitVariableExpr(expr VariableExpr) (any, error)
 	VisitAssignExpr(expr AssignExpr) (any, error)
 	VisitLogicalExpr(expr LogicalExpr) (any, error)
+	VisitCallExpr(expr CallExpr) (any, error)
 }
 
 type Stmt interface {
@@ -134,6 +145,16 @@ func (e WhileStmt) Accept(visitor StmtVisitor) (any, error) {
 	return visitor.VisitWhileStmt(e)
 }
 
+type Function struct { 
+	Name Token
+	Params []Token
+	Body []Stmt
+}
+
+func (e Function) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitFunction(e)
+}
+
 type StmtVisitor interface { 
 	VisitExprStmt(expr ExprStmt) (any, error)
 	VisitPrintStmt(expr PrintStmt) (any, error)
@@ -141,5 +162,6 @@ type StmtVisitor interface {
 	VisitBlock(expr Block) (any, error)
 	VisitIfStmt(expr IfStmt) (any, error)
 	VisitWhileStmt(expr WhileStmt) (any, error)
+	VisitFunction(expr Function) (any, error)
 }
 

@@ -17,6 +17,41 @@ type Interpreter struct {
 	*Enviorment
 }
 
+// VisitFunction implements StmtVisitor.
+func (i *Interpreter) VisitFunction(expr Function) (any, error) {
+	i.Enviorment.Put(expr.Name.Lexme, expr)
+	return nil, nil
+}
+
+// VisitCallExpr implements ExprVisitor.
+func (i *Interpreter) VisitCallExpr(expr CallExpr) (_ any, err error) {
+	callee, err := i.evaluate(expr.Callee)
+	if err != nil {
+		return
+	}
+
+	args := []any{}
+	for _, arg := range expr.Arguments {
+		var res any
+		res, err = i.evaluate(arg)
+		if err != nil {
+			return
+		}
+		args = append(args, res)
+	}
+
+	function, ok := callee.(LoxCallable)
+	if !ok {
+		err = RunTimeError{expr.Paren, "Can only call functions and classes"}
+		return
+	}
+	if len(args) != function.Arity() {
+		err = RunTimeError{expr.Paren, fmt.Sprint("Expected", function.Arity(), "arguments but got", len(args))}
+		return
+	}
+	return function.Call(i, args)
+}
+
 // VisitWhileStmt implements StmtVisitor.
 func (i *Interpreter) VisitWhileStmt(expr WhileStmt) (_ any, err error) {
 	var res any
@@ -228,9 +263,11 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 }
 
 func (i *Interpreter) execute(stmt Stmt) (any, error) {
+	if stmt == nil {
+		return nil, nil
+	}
 	return stmt.Accept(i)
 }
-
 func Interpret(e []Stmt) error {
 	i := &Interpreter{
 		&Enviorment{
@@ -238,6 +275,7 @@ func Interpret(e []Stmt) error {
 			enclosing: nil,
 		},
 	}
+	i.Put("clock", ClockFunc{})
 	for _, v := range e {
 		_, err := i.execute(v)
 		if err != nil {
