@@ -13,7 +13,7 @@ func main() {
 	flag.Parse()
 
 	if *replArg {
-		panic("Unimplemented")
+		glox.Repl()
 	} else {
 		b, err := os.ReadFile(*fileArg)
 		if err != nil {

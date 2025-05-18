@@ -11,6 +11,16 @@ type parser struct {
 	syncronized bool
 }
 
+func ParseCode(code string) (stmts []Stmt, errs []error) {
+	tokens, err := Scan(code)
+	if err != nil {
+		errs = append(errs, err)
+		return
+	}
+
+	return Parse(tokens)
+}
+
 func Parse(tokens []Token) ([]Stmt, []error) {
 	p := parser{tokens: tokens, pos: 0, syncronized: true}
 	stmts := []Stmt{}

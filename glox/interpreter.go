@@ -13,16 +13,16 @@ func (e RunTimeError) Error() string {
 	return fmt.Sprintf("Error :%v around '%v': %v", e.t.Line, e.t.Lexme, e.m)
 }
 
-type interpreter struct {
+type Interpreter struct {
 	*Enviorment
 }
 
-func (i *interpreter) VisitBlock(expr Block) (_ any, err error) {
+func (i *Interpreter) VisitBlock(expr Block) (_ any, err error) {
 	err = i.executeBlock(expr.Stmts, &Enviorment{i.Enviorment, map[string]any{}})
 	return
 }
 
-func (i *interpreter) executeBlock(stmts []Stmt, env *Enviorment) (err error) {
+func (i *Interpreter) executeBlock(stmts []Stmt, env *Enviorment) (err error) {
 	prev := i.Enviorment
 	i.Enviorment = env
 	for _, stmt := range stmts {
@@ -35,7 +35,7 @@ func (i *interpreter) executeBlock(stmts []Stmt, env *Enviorment) (err error) {
 	return
 }
 
-func (i *interpreter) VisitAssignExpr(expr AssignExpr) (value any, err error) {
+func (i *Interpreter) VisitAssignExpr(expr AssignExpr) (value any, err error) {
 	value, err = i.evaluate(expr.Value)
 	if err != nil {
 		return
@@ -44,11 +44,11 @@ func (i *interpreter) VisitAssignExpr(expr AssignExpr) (value any, err error) {
 	return
 }
 
-func (i *interpreter) VisitVariableExpr(expr VariableExpr) (any, error) {
+func (i *Interpreter) VisitVariableExpr(expr VariableExpr) (any, error) {
 	return i.Get(expr.Name)
 }
 
-func (i *interpreter) VisitVarDecl(expr VarDecl) (_ any, err error) {
+func (i *Interpreter) VisitVarDecl(expr VarDecl) (_ any, err error) {
 	var value any
 	if expr.Initializer != nil {
 		value, err = i.evaluate(expr.Initializer)
@@ -60,12 +60,12 @@ func (i *interpreter) VisitVarDecl(expr VarDecl) (_ any, err error) {
 	return
 }
 
-func (i *interpreter) VisitExprStmt(expr ExprStmt) (any, error) {
+func (i *Interpreter) VisitExprStmt(expr ExprStmt) (any, error) {
 	_, err := i.evaluate(expr.Expr)
 	return nil, err
 }
 
-func (i *interpreter) VisitPrintStmt(expr PrintStmt) (_ any, err error) {
+func (i *Interpreter) VisitPrintStmt(expr PrintStmt) (_ any, err error) {
 	v, err := i.evaluate(expr.Expr)
 	if err != nil {
 		return
@@ -74,7 +74,7 @@ func (i *interpreter) VisitPrintStmt(expr PrintStmt) (_ any, err error) {
 	return
 }
 
-func (i *interpreter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
+func (i *Interpreter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
 	left, err := i.evaluate(expr.Left)
 	if err != nil {
 		return nil, err
@@ -134,15 +134,15 @@ func (i *interpreter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
 	}
 }
 
-func (i *interpreter) VisitGroupingExpr(expr GroupingExpr) (any, error) {
+func (i *Interpreter) VisitGroupingExpr(expr GroupingExpr) (any, error) {
 	return i.evaluate(expr.Expr)
 }
 
-func (i *interpreter) VisitLiteralExpr(expr LiteralExpr) (any, error) {
+func (i *Interpreter) VisitLiteralExpr(expr LiteralExpr) (any, error) {
 	return expr.Value, nil
 }
 
-func (i *interpreter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
+func (i *Interpreter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
 	right, err := i.evaluate(expr.Expr)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (i *interpreter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
 	}
 }
 
-func (i *interpreter) isTruthy(value any) bool {
+func (i *Interpreter) isTruthy(value any) bool {
 	switch value := value.(type) {
 	case nil:
 		return false
@@ -173,16 +173,16 @@ func (i *interpreter) isTruthy(value any) bool {
 	}
 }
 
-func (i *interpreter) evaluate(expr Expr) (any, error) {
+func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	return expr.Accept(i)
 }
 
-func (i *interpreter) execute(stmt Stmt) (any, error) {
+func (i *Interpreter) execute(stmt Stmt) (any, error) {
 	return stmt.Accept(i)
 }
 
 func Interpret(e []Stmt) error {
-	i := &interpreter{
+	i := &Interpreter{
 		&Enviorment{
 			values:    map[string]any{},
 			enclosing: nil,
