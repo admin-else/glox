@@ -51,6 +51,10 @@ func main() {
 				{"Initializer", "Expr"},
 			}}, {"Block", []Arg{
 				{"Stmts", "[]Stmt"},
+			}}, {"IfStmt", []Arg{
+				{"Condition", "Expr"},
+				{"ThenBranch", "Stmt"},
+				{"ElseBranch", "Stmt"},
 			}},
 		}}}
 	tmplSrc, err := os.ReadFile("../generateast/ast.go.tmpl")

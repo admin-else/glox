@@ -104,10 +104,21 @@ func (e Block) Accept(visitor StmtVisitor) (any, error) {
 	return visitor.VisitBlock(e)
 }
 
+type IfStmt struct { 
+	Condition Expr
+	ThenBranch Stmt
+	ElseBranch Stmt
+}
+
+func (e IfStmt) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitIfStmt(e)
+}
+
 type StmtVisitor interface { 
 	VisitExprStmt(expr ExprStmt) (any, error)
 	VisitPrintStmt(expr PrintStmt) (any, error)
 	VisitVarDecl(expr VarDecl) (any, error)
 	VisitBlock(expr Block) (any, error)
+	VisitIfStmt(expr IfStmt) (any, error)
 }
 
