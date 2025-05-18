@@ -96,9 +96,18 @@ func (e VarDecl) Accept(visitor StmtVisitor) (any, error) {
 	return visitor.VisitVarDecl(e)
 }
 
+type Block struct { 
+	Stmts []Stmt
+}
+
+func (e Block) Accept(visitor StmtVisitor) (any, error) {
+	return visitor.VisitBlock(e)
+}
+
 type StmtVisitor interface { 
 	VisitExprStmt(expr ExprStmt) (any, error)
 	VisitPrintStmt(expr PrintStmt) (any, error)
 	VisitVarDecl(expr VarDecl) (any, error)
+	VisitBlock(expr Block) (any, error)
 }
 

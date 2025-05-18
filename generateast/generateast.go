@@ -49,6 +49,8 @@ func main() {
 			}}, {"VarDecl", []Arg{
 				{"Name", "Token"},
 				{"Initializer", "Expr"},
+			}}, {"Block", []Arg{
+				{"Stmts", "[]Stmt"},
 			}},
 		}}}
 	tmplSrc, err := os.ReadFile("../generateast/ast.go.tmpl")

@@ -14,7 +14,25 @@ func (e RunTimeError) Error() string {
 }
 
 type interpreter struct {
-	Enviorment
+	*Enviorment
+}
+
+func (i *interpreter) VisitBlock(expr Block) (_ any, err error) {
+	err = i.executeBlock(expr.Stmts, &Enviorment{i.Enviorment, map[string]any{}})
+	return
+}
+
+func (i *interpreter) executeBlock(stmts []Stmt, env *Enviorment) (err error) {
+	prev := i.Enviorment
+	i.Enviorment = env
+	for _, stmt := range stmts {
+		_, err = i.execute(stmt)
+		if err != nil {
+			return err
+		}
+	}
+	i.Enviorment = prev
+	return
 }
 
 func (i *interpreter) VisitAssignExpr(expr AssignExpr) (value any, err error) {
@@ -47,10 +65,13 @@ func (i *interpreter) VisitExprStmt(expr ExprStmt) (any, error) {
 	return nil, err
 }
 
-func (i *interpreter) VisitPrintStmt(expr PrintStmt) (any, error) {
+func (i *interpreter) VisitPrintStmt(expr PrintStmt) (_ any, err error) {
 	v, err := i.evaluate(expr.Expr)
+	if err != nil {
+		return
+	}
 	fmt.Println(v)
-	return nil, err
+	return
 }
 
 func (i *interpreter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
@@ -162,8 +183,9 @@ func (i *interpreter) execute(stmt Stmt) (any, error) {
 
 func Interpret(e []Stmt) error {
 	i := &interpreter{
-		Enviorment{
-			map[string]any{},
+		&Enviorment{
+			values:    map[string]any{},
+			enclosing: nil,
 		},
 	}
 	for _, v := range e {

@@ -52,9 +52,21 @@ func (p *parser) varDecl() Stmt {
 func (p *parser) statement() Stmt {
 	if p.match(PRINT) {
 		return p.printStmt()
+	} else if p.match(LEFT_BRACE) {
+		return p.block()
 	}
 
 	return p.exprStmt()
+}
+
+func (p *parser) block() Block {
+	stmts := []Stmt{}
+
+	for !p.check(RIGHT_BRACE) && !p.isAtEnd() {
+		stmts = append(stmts, p.decleration())
+	}
+	p.consume(RIGHT_BRACE, "Expect '}' after blokc")
+	return Block{stmts}
 }
 
 func (p *parser) exprStmt() ExprStmt {
