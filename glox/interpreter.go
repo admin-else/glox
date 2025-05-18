@@ -17,6 +17,15 @@ type interpreter struct {
 	Enviorment
 }
 
+func (i *interpreter) VisitAssignExpr(expr AssignExpr) (value any, err error) {
+	value, err = i.evaluate(expr.Value)
+	if err != nil {
+		return
+	}
+	err = i.Assign(expr.Name, value)
+	return
+}
+
 func (i *interpreter) VisitVariableExpr(expr VariableExpr) (any, error) {
 	return i.Get(expr.Name)
 }

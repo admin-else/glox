@@ -1,3 +1,2 @@
-var lol = 894;
-var lol2 = 1;
-print lol + lol2;
+var a = 1;
+print a = 2;

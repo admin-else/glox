@@ -17,3 +17,12 @@ func (e *Enviorment) Get(name Token) (any, error) {
 func (e *Enviorment) Put(name string, value any) {
 	e.values[name] = value
 }
+
+func (e *Enviorment) Assign(name Token, value any) error {
+	_, exists := e.values[name.Lexme]
+	if !exists {
+		return fmt.Errorf("Undefined variable '%v'.", name.Lexme)
+	}
+	e.Put(name.Lexme, value)
+	return nil
+}

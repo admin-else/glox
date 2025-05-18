@@ -70,7 +70,25 @@ func (p *parser) printStmt() PrintStmt {
 }
 
 func (p *parser) expression() Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *parser) assignment() Expr {
+	expr := p.equality()
+
+	if p.match(EQUAL) {
+		equals := p.peek(-1)
+		value := p.assignment()
+
+		varr, ok := expr.(VariableExpr)
+		if !ok {
+			p.error(equals, "Invalid assignment target")
+			return nil
+		}
+		return AssignExpr{varr.Name, value}
+	}
+
+	return expr
 }
 
 func (p *parser) equality() Expr {

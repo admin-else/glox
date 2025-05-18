@@ -36,6 +36,9 @@ func main() {
 				{"Expr", "Expr"},
 			}}, {"VariableExpr", []Arg{
 				{"Name", "Token"},
+			}}, {"AssignExpr", []Arg{
+				{"Name", "Token"},
+				{"Value", "Expr"},
 			}},
 		}},
 		{"Stmt", []Node{
