@@ -72,8 +72,46 @@ func (p *parser) statement() Stmt {
 	if p.match(WHILE) {
 		return p.while()
 	}
+	if p.match(FOR) {
+		return p.forStmt()
+	}
 
 	return p.exprStmt()
+}
+
+func (p *parser) forStmt() Stmt {
+	p.consume(LEFT_PAREN, "Expect '(' after 'for'")
+	var init Stmt
+	if p.match(SEMICOLON) {
+	} else if p.match(VAR) {
+		init = p.varDecl()
+	} else {
+		init = p.exprStmt()
+	}
+
+	var cond Expr = LiteralExpr{Value: true}
+	if !p.check(SEMICOLON) {
+		cond = p.expression()
+	}
+
+	p.consume(SEMICOLON, "Expect ';' after loop cond")
+	var incr Expr
+	if !p.check(RIGHT_PAREN) {
+		incr = p.expression()
+	}
+	p.consume(RIGHT_PAREN, "Expect ')' after for clauses")
+
+	body := p.statement()
+	if incr != nil {
+		body = Block{[]Stmt{body, ExprStmt{incr}}}
+	}
+	body = WhileStmt{cond, body}
+
+	if init != nil {
+		body = Block{[]Stmt{init, body}}
+	}
+
+	return body
 }
 
 func (p *parser) while() WhileStmt {

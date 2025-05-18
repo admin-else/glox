@@ -29,7 +29,7 @@ func (e *Enviorment) Assign(name Token, value any) error {
 		return nil
 	}
 	if e.enclosing != nil {
-		return e.Assign(name, value)
+		return e.enclosing.Assign(name, value)
 	}
 	return fmt.Errorf("undefined variable '%v'", name.Lexme)
 }
